@@ -1,0 +1,18 @@
+#!/usr/bin/bash
+#Get non-mounted removable drives on the system in the mountables variable.
+mountables=$(lsblk -lp | awk '/^[\/A-Za-z0-9]+ +[0-9]+:[0-9]+ +1 +[0-9]+\.?[0-9]+?[GMK] +0 +part +$/ {print $1, "("$4")"}')
+#pipe the mountables to dmenu and awk to filter the choice.
+chosen=$(echo "$mountables" | dmenu -i -p "Select Drive:" | awk '{print $1}')
+[[ -z "$chosen" ]] && exit 1
+#if drive already exists on fstab file
+sudo mount $chosen && exit 0
+dirs=$(find /mnt /media -maxdepth 1 -type d -empty 2>/dev/null)
+mountpoints=$(echo "$dirs" | dmenu -i -p "MountPoint(select or create): ")
+[[ -z "$mountpoints" ]] && exit 1
+
+if [[ ! -d "$mountpoints" ]]; then
+	mkdirask=$(echo "Yes\nNo" | dmenu -i -p "Make Directory?Yes or No")
+	[[ "$mkdirask" = "Yes" ]] && sudo mkdir $mountpoints || exit 1
+fi
+
+sudo mount $chosen $mountpoints
