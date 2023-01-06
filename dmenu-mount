@@ -11,7 +11,7 @@ mountpoints=$(echo "$dirs" | dmenu -i -p "MountPoint(select or create): ")
 [[ -z "$mountpoints" ]] && exit 1
 
 if [[ ! -d "$mountpoints" ]]; then
-	mkdirask=$(echo "Yes\nNo" | dmenu -i -p "Make Directory?Yes or No")
+	mkdirask=$(printf "Yes\nNo" | dmenu -i -p "Make Directory?Yes or No")
 	[[ "$mkdirask" = "Yes" ]] && sudo mkdir $mountpoints || exit 1
 fi
 
